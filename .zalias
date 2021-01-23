@@ -1,0 +1,277 @@
+alias clean='echo -n "Really clean this directory? <- ";
+	read -k yorn;
+	echo -n " ... "
+	if test "$yorn" = "y"; then
+	   setopt nullglob
+	   echo
+	   rm -vf \#* *~ .*~ *.bak .*.bak  *.tmp .*.tmp core a.out texput.log *.synctex.gz
+	   rm -vf *.dvi *.jep *.aux *.lot *.lof *.toc *.idx *.ind *.ilg *.lol *.bbl *.blg
+	   rm -vf *.bcf *.maf *.mtc *.mtc0 *.run.xml
+           rm -vf auto/*.el
+	   test -d auto && rmdir -v auto
+	   for i in out log pdf; do
+		   for j in *.${i}; do
+			if test -f "`basename $j \.${i}`.tex"; then
+				rm -iv $j
+			fi
+		  done
+	   done
+	   unset noglob
+	   echo "... Cleaned.";
+	else
+	   echo "Not cleaned.";
+	fi'
+alias clean-r='echo -n "Really clean recursive all directories? <- ";
+	read -k yorn;
+	echo -n " ... "
+	if test "$yorn" = "y"; then
+	   setopt nullglob
+	   echo
+	   rm -iv **/\#* **/*~ **/.*~ **/*.bak **/.*.bak  **/*.tmp **/.*.tmp **/core **/a.out;
+	   rm -iv **/*.dvi **/*.jep **/*.aux **/*.lot **/*.lof **/*.toc
+	   rm -iv **/*.log
+	   unset noglob
+	   echo "... Cleaned.";
+	else
+	   echo "Not cleaned.";
+	fi'
+
+#
+# Csh compatability:
+#
+alias unsetenv=unset
+function setenv () {
+  export $1="$2"
+}
+
+acrobat () {
+    unfunction acrobat
+    if [ -f 'C:/Program Files/Adobe/Acrobat 7.0/Reader/AcroRd32.exe' ]; then
+	alias acrobat='C:/Program\ Files/Adobe/Acrobat\ 7.0/Reader/AcroRd32.exe'
+	'C:/Program Files/Adobe/Acrobat 7.0/Reader/AcroRd32.exe' $@
+    else	
+	acrobat $@
+    fi
+}
+
+emacs () {
+    unfunction emacs
+    if [ -f 'C:/Program\ Files/GNU/Emacs/bin/runemacs.exe' ]
+    then
+	alias emacs='C:/Program\ Files/GNU/Emacs/bin/runemacs.exe'
+    fi
+    emacs $@
+}
+
+
+ff () {
+	unfunction ff
+	if [ "$OSTYPE" = "cygwin" ]; then
+		alias ff='locate --database=/home/alam/lib/al.db'
+		locate --database=/home/alam/lib/al.db $@
+	else
+		alias ff='locate'
+		locate $@
+	fi
+}
+
+
+updatedb () {
+    unfunction updatedb
+    if [ "$OSTYPE" = "cygwin" ]; then
+	alias updatedb="updatedb --output=/home/alam/lib/al.db --localpaths='/cygdrive/c /cygdrive/d /cygdrive/e'"
+	updatedb --output=/home/alam/lib/al.db --localpaths='/cygdrive/c /cygdrive/d /cygdrive/e'
+    else
+	updatedb
+    fi
+}	
+
+
+syshalt () {
+    if [ "$OSTYPE" = "cygwin" ]; then
+	shutdown now
+    else
+	exec rr /sbin/shutdown -ht 3 now SYSHALT
+    fi
+}
+
+sysboot () {
+    if [ "$OSTYPE" = "cygwin" ]; then
+	shutdown -r now
+    else
+	exec rr /sbin/shutdown -rt 3 now SYSBOOT
+    fi
+}
+
+SKN       () { find . -type f -print0 | xargs -0 fgrep -n -i $1 | less }
+sff       () { fgrep $1 /var/log/packages/* }
+cpr       () { cpr -l 72 $* |tab|lp -demlx1 -m }
+ed        () { emacsclient -alternate-editor="" -n -c -F "((width . 90)(height . 41)(top . 100)(left . 600))" $* }
+grm       () { rr fgrep -i $* /usr/adm/messages }
+grs       () { rr fgrep -i $* /usr/adm/syslog }
+newlog    () { rr logrotate -f /etc/logrotate.conf }
+ld        () { ls -l $* | egrep '^d' }
+pf        () { ps auxwww | grep -Fv grep | grep -F $* }
+skn       () { find . -type f -print0 | xargs -0 fgrep -n $1 | less }
+mes       () { rr tail -20 /usr/adm/messages$* }
+sys       () { rr tail -20 /usr/adm/syslog$* }
+mesl      () { rr vi /usr/adm/messages$* }
+sysl      () { rr vi /usr/adm/syslog$* }
+sz        () { find ${1:-.}       -type f             -print0|xargs -0 ls -l |sort +4 -r -n| less }
+szm       () { find ${1:-.} -xdev -type f             -print0|xargs -0 ls -l |sort +4 -r -n| less }
+szm100    () { find ${1:-.} -xdev -type f -size +100M -print0|xargs -0 ls -l |sort +4 -r -n| less }
+zmore     () { gzip -cd $* | more }
+xvidpass1 () { time mencoder -nosound -ovc xvid -xvidencopts turbo:stats:${1}:pass=1 -o /dev/null "${2}" }
+dis       () { export DISPLAY="$1":0 }
+nnp       () { mp -a4 -article -landscape -duplex $* |lp }
+
+idmedia   () { 
+	for i in $@
+	do
+		echo "---------------------------"
+		echo $i
+		mplayer -identify -frames 0 -ao null -vo null  -vc dummy "$i" 2>/dev/null | fgrep ID_ 
+	done
+}
+
+# Function which adds an alias to the current shell and to
+# the ~/.bash_aliases file.
+add-alias ()
+{
+   local name=$1 value="$2"
+   echo alias $name=\'$value\' >>~/.zalias
+   eval alias $name=\'$value\'
+   alias $name
+}
+
+
+timer () {
+    i=0 
+    while : 
+    do 
+	echo "\r$i\c" 
+	let i=$i+1 
+	sleep 1 
+    done 
+}
+
+doinst () {
+    for i in $*
+    do
+	rr install -o bin -g bin $i /usr/local/bin
+    done
+}
+
+syshalt () {
+    dismountguest
+    if [ "$rc" != "0" ]
+    then
+	echo "Some dismounts failed."
+	echo "Do it by hand."
+	return 1
+    fi
+    exec rr /sbin/shutdown -ht 3 now SYSHALT
+}
+
+sysboot () {
+    dismountguest
+    if [ "$rc" != "0" ]
+    then
+	echo "Some dismounts failed."
+	echo "Do it by hand."
+	return 1
+    fi
+    exec rr /sbin/shutdown -rt 3 now SYSBOOT
+}
+dismountguest () {
+    dir=`egrep "^guest:.*$" /etc/passwd|cut -d: -f6|cut -f1-3 -d/`
+    if fgrep "$dir" /etc/mtab >/dev/null 2>&1
+    then
+	sync; sync; sync
+	rr umount -v $dir
+	if [ $? -ne 0 ]
+	then
+	    rc=1
+	    return
+	fi
+	sync; sync; sync
+    fi
+    if [ -b /dev/mapper/iw0.0 ]
+    then
+	rr cryptsetup remove iw0.0
+    fi
+    rc=0
+    rr rm /etc/nologin
+    return
+}	
+
+guest () {
+    rr cp /etc/nologin.no /etc/nologin
+    rr cryptsetup -c aes-plain -y create iw0.0 /dev/sdb1 || return
+    rr mount /home/mnt2
+    if [ ! -z "$DISPLAY" ]
+    then
+	xhost +local:localhost
+	( rxvt -e root - guest & )
+    fi
+}
+
+
+alias 100='echo "\033[61\"p\c"'
+alias 132='set term=vt100; switch_to_132; eval `resize`'
+alias 80='set term=vt100; switch_to_80; eval `resize`'
+alias adr='echo Starting on  $DISPLAY;(addressbook&)'
+alias arun='rr apachectl start'
+alias astop='rr apachectl stop'
+alias c='clear'
+alias cd..='cd ..'
+alias cifer_reset='echo "\033c\c";setfont'
+alias cmd='precmd () { echo -n 033k033134 }'
+alias cp='nocorrect cp'
+alias csn='guistart /H/sapgateb.wdf.sap-ag.de/S/3296/H/10.17.96.184/S/3224'
+alias dmesg='rr dmesg -e'
+alias dw='dolphin'
+alias fcat='tail +0f'
+alias fff='glimpse'
+alias gr='fgrep -i'
+alias h='history'
+alias isp='guistart /H/sapgateb.wdf.sap-ag.de/S/3296/H/10.17.96.184/S/3224'
+alias jstop='rr su - jrun -c \"bin/jrun stop\"'
+alias l="ls -l "
+alias la='ls -aFC'
+alias ll='ls -l'
+alias lo='ls -l *.org'
+alias ls="ls -F"
+alias lsd='ls -d */'
+alias lsr="find ${1:-.} -type f -print0 |xargs -0 ls -l"
+alias m='mplayer'
+alias mailq='rr mailq'
+alias man='man -a'
+alias mkdir='nocorrect mkdir'
+alias more='/usr/bin/less'
+alias mt1='guistart /H/sapgateb.wdf.sap-ag.de/S/3297/H/psasb042.asb.sap-ag.de'
+alias mv='nocorrect mv'
+alias my='rr chown andreas'
+alias nrable='ls -AFltrd *(^R)' 
+alias pu='ps -fu'
+alias rable='ls -AFltrd *(R)'
+alias rmtemp='/bin/rm -i `/usr/local/bin/since`'
+alias rp='dvips -o _region_.ps _region_.dvi'
+alias sa='. ~/.zalias'
+alias sc='. ~/.zshrc'
+alias sl='source ~/.zlogin'
+alias sm='rr /usr/lib/sendmail'
+alias smt='rr /usr/lib/sendmail -bt -C /usr/lib/sendmail.test'
+alias so2='guistart /H/sapgateb.wdf.sap-ag.de/S/3297/H/psasb030.asb.sap-ag.de/S/sapdp00'
+alias so6='guistart /H/sapgateb.wdf.sap-ag.de/S/3297/H/10.29.225.35/S/sapdp06'
+alias ss='which'
+alias switch_to_132='echo  "\033[?3h\c"'
+alias switch_to_80='echo -n "\033[?3l\c"'
+alias tee='sleep 160; echo '
+alias vf='cd'
+alias vff="PROMPT='/'; RPROMPT='<%c %U%T%u>'"
+alias vt100='export TERM=vt100'
+alias ww='who -uHT'
+alias xfig='xfig -internalBW 2 -me'
+alias xt='export TERM=xterm'
+alias dirview='dolphin'

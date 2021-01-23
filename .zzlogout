@@ -1,0 +1,39 @@
+#!/bin/zsh -f
+DATE=`/bin/date '+DATE: %m/%d/%y TIME: %H:%M:%S'`
+NODE=`hostname`
+#exec 2>/dev/null
+
+if [ "$TERM" != "" ]
+then
+    COL=`builtin echotc cols`
+    LIN=`builtin echotc lines`
+    let HALF="$LIN / 2 - 4"
+    let STARS="$COL / 2 - 9"
+    
+    for (( STARS=$STARS; $STARS != 0 ; STARS-- ))
+    do
+	STAR="${STAR}*"
+    done
+    builtin echotc clear && builtin echoti smso && builtin echoti blink  && builtin echoti cup $half 0
+    echo 
+    echo "$STAR G o o d - b y e $STAR" 
+    builtin echoti sgr0 
+    ECHOLAST="$LOGNAME logged out at $DATE from NODE $NODE"
+    CHAR=`echo -e "$ECHOLAST\c" | wc -c`
+    
+    (( SPACE = $COL -  $CHAR ))
+    (( SPACE = $SPACE / 2 ))
+    
+    if [ $SPACE != 0 ]
+    then
+	BLANK=" $BLANK"
+	((SPACE--))
+    fi
+    
+    echo -e "$BLANK\c" && builtin echoti smul && echo "$ECHOLAST" 
+    builtin echoti rmul && builtin echoti sgr0 &&  echo -e "\n\n"
+else
+    exit 0
+fi
+time
+sleep 3
