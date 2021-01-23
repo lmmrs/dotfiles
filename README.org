@@ -1,2 +1,5 @@
-# dotfiles
+* dotfiles
 Here I am organizing all of my dotfiles.
+
+For me very important is the setup of my =zsh= files.
+** zsh files
